@@ -2,6 +2,7 @@ package com.github.dreamroute.deep.es;
 
 import com.alibaba.fastjson.JSON;
 import com.github.dreamroute.deep.domain.User;
+import com.github.dreamroute.deep.repository.UserRepository;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -14,6 +15,7 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 
 import java.io.IOException;
+import java.util.List;
 
 @SpringBootTest
 public class ApiTest {
@@ -22,6 +24,8 @@ public class ApiTest {
     private RestHighLevelClient client;
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     public void indexTest() throws IOException {
@@ -41,4 +45,33 @@ public class ApiTest {
                 .build();
     }
 
+    @Test
+    public void saveTest() {
+        for (int i=0; i<10; i++) {
+            User user = User.builder().id(Long.valueOf(i)).name("w.dehai").build();
+            User u = userRepository.save(user);
+            System.err.println(u);
+        }
+    }
+
+    @Test
+    public void findByNameTest() {
+        List<User> result = userRepository.findByName("w.dehai");
+        System.err.println(result);
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
