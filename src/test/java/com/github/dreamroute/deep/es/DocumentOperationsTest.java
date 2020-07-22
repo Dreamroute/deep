@@ -3,6 +3,7 @@ package com.github.dreamroute.deep.es;
 import com.github.dreamroute.deep.domain.User;
 import com.github.dreamroute.deep.repository.UserRepository;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 
 import java.util.Arrays;
@@ -95,10 +97,13 @@ public class DocumentOperationsTest {
 
     @Test
     public void searchTest() {
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        SearchRequest searchRequest = new SearchRequest("user");
-        searchRequest.source(searchSourceBuilder);
+        NativeSearchQueryBuilder builder = new NativeSearchQueryBuilder();
+        MatchAllQueryBuilder matchAllQueryBuilder = QueryBuilders.matchAllQuery();
+        builder.withQuery(matchAllQueryBuilder);
+        SearchHits<User> search = elasticsearchRestTemplate.search(builder.build(), User.class);
+        if (search.getTotalHits() > 0) {
+            search.forEach(su -> System.err.println(su.getContent()));
+        }
     }
 
 }
