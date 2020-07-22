@@ -2,6 +2,7 @@ package com.github.dreamroute.deep.es;
 
 import com.github.dreamroute.deep.domain.User;
 import com.github.dreamroute.deep.repository.UserRepository;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
@@ -96,6 +97,8 @@ public class DocumentOperationsTest {
     public void searchTest() {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        SearchRequest searchRequest = new SearchRequest("user");
+        searchRequest.source(searchSourceBuilder);
     }
 
 }
