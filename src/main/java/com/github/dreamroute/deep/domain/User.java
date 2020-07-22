@@ -18,4 +18,14 @@ public class User {
     private String name;
     private String password;
     private Long version;
+
+    public User setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public User setName(String name) {
+        this.name = name;
+        return this;
+    }
 }

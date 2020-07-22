@@ -10,13 +10,14 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 public class ApiTest {
@@ -24,7 +25,7 @@ public class ApiTest {
     @Autowired
     private RestHighLevelClient client;
     @Autowired
-    private ElasticsearchOperations elasticsearchOperations;
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
     @Autowired
     private UserRepository userRepository;
 
@@ -60,6 +61,28 @@ public class ApiTest {
         List<User> result = userRepository.findByName("w.dehai");
         System.err.println(result);
     }
+
+    @Test
+    public void findOneTest() {
+        Optional<User> result = userRepository.findById(3L);
+        result.ifPresent(System.err::println);
+    }
+
+    @Test
+    public void searchTest() {
+        User user = User.builder().id(100L).name("w.dehai").password("333").version(1L).build();
+        IndexQuery indexQuery = new IndexQueryBuilder().withId(String.valueOf(user.getId())).withObject(user).build();
+        String result = elasticsearchRestTemplate.index(indexQuery, null);
+        System.err.println(result);
+    }
+
+    @Test
+    public void saveMultiTest() {
+        User user = User.builder().id(100L).name("w.dehai").password("333").version(1L).build();
+        elasticsearchRestTemplate.save(user);
+        elasticsearchRestTemplate.save(user, IndexCoordinates.of("user-m"));
+    }
+
 
 }
 
