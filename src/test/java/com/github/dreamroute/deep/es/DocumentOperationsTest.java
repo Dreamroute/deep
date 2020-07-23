@@ -21,6 +21,11 @@ import org.springframework.data.elasticsearch.core.query.StringQuery;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class DocumentOperationsTest {
@@ -151,6 +156,9 @@ public class DocumentOperationsTest {
 
         search = elasticsearchRestTemplate.search(new NativeSearchQueryBuilder().withQuery(QueryBuilders.matchPhraseQuery("name", "中国人")).build(), User.class);
         print(search);
+
+        ExecutorService pool = new ThreadPoolExecutor(10, 10, 10, TimeUnit.MINUTES, new LinkedBlockingDeque<>(100));
+
 
     }
 
