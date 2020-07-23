@@ -2,21 +2,21 @@ package com.github.dreamroute.deep.es;
 
 import com.github.dreamroute.deep.domain.User;
 import com.github.dreamroute.deep.repository.UserRepository;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.query.StringQuery;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +40,7 @@ public class DocumentOperationsTest {
 
     @Test
     public void saveTest() {
-        elasticsearchRestTemplate.save(user().setId(1L).setName("save"));
+        elasticsearchRestTemplate.save(user().setId(8L).setName("我是个中国人"));
     }
 
     @Test
@@ -98,12 +98,91 @@ public class DocumentOperationsTest {
     @Test
     public void searchTest() {
         NativeSearchQueryBuilder builder = new NativeSearchQueryBuilder();
-        MatchAllQueryBuilder matchAllQueryBuilder = QueryBuilders.matchAllQuery();
-        builder.withQuery(matchAllQueryBuilder);
-        SearchHits<User> search = elasticsearchRestTemplate.search(builder.build(), User.class);
-        if (search.getTotalHits() > 0) {
-            search.forEach(su -> System.err.println(su.getContent()));
+        builder.withQuery(QueryBuilders.matchAllQuery())
+                .withPageable(PageRequest.of(0, 2));
+        SearchHits<User> result = elasticsearchRestTemplate.search(builder.build(), User.class);
+        if (result.getTotalHits() > 0) {
+            result.forEach(userSearchHit -> System.err.println(userSearchHit.getContent()));
+        }
+    }
+
+    @Test
+    public void stringQueryTest() {
+        SearchHits<User> result = elasticsearchRestTemplate.search(new StringQuery(QueryBuilders.matchAllQuery().toString()), User.class);
+        System.err.println(result);
+    }
+
+    @Test
+    public void criteriaQueryTest() {
+        CriteriaQuery criteriaQuery = new CriteriaQuery(new Criteria("name").is("save")).setPageable(PageRequest.of(0, 2));
+        SearchHits<User> result = elasticsearchRestTemplate.search(criteriaQuery, User.class);
+        if (result.getTotalHits() > 0) {
+            result.forEach(userSearchHit -> System.err.println(userSearchHit.getContent()));
+        }
+    }
+
+    @Test
+    public void searchOneTest() {
+        NativeSearchQuery query = new NativeSearchQueryBuilder().withQuery(QueryBuilders.termQuery("name", "555")).build();
+        SearchHit<Object> result = elasticsearchRestTemplate.searchOne(query, Object.class, IndexCoordinates.of("user", "user-index"));
+        System.err.println(result);
+    }
+
+    @Test
+    public void moreLikeThisTest() {
+    }
+
+    @Test
+    public void suggestTest() {
+    }
+
+    @Test
+    public void fuzzyTest() {
+        SearchHits<User> result = elasticsearchRestTemplate.search(new NativeSearchQueryBuilder().withQuery(QueryBuilders.fuzzyQuery("name", "中国人")).build(), User.class);
+        if (result.getTotalHits() > 0) {
+            result.forEach(userSearchHit -> System.err.println(userSearchHit.getContent()));
+        }
+    }
+
+    @Test
+    public void comlexTest() {
+        SearchHits<User> search = elasticsearchRestTemplate.search(new NativeSearchQueryBuilder().withQuery(QueryBuilders.termQuery("name", "我是个中国人")).build(), User.class);
+        print(search);
+
+        search = elasticsearchRestTemplate.search(new NativeSearchQueryBuilder().withQuery(QueryBuilders.matchPhraseQuery("name", "中国人")).build(), User.class);
+        print(search);
+
+    }
+
+    private static void print(SearchHits<User> result) {
+        if (result.getTotalHits() > 0) {
+            result.forEach(userSearchHit -> System.err.println(userSearchHit.getContent()));
         }
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
