@@ -1,14 +1,7 @@
 package com.github.dreamroute.deep.mapper;
 
 import com.github.dreamroute.deep.domain.User;
-import org.apache.ibatis.annotations.Param;
+import tk.mybatis.mapper.common.Mapper;
 
-import java.util.List;
-
-public interface UserMapper {
-
-    int insert(@Param("user") User user);
-
-    User findByNameAndPassword(@Param("name") String name, @Param("password") String password);
-
+public interface UserMapper extends Mapper<User> {
 }
