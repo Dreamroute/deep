@@ -6,4 +6,7 @@
     <insert id="insert">
         insert into smart_user (`name`, password, version) values (#{name}, #{password}, #{version})
   </insert>
+    <select id="selectById" parameterType="long" resultType="com.github.dreamroute.deep.domain.User">
+        select * from smart_user where id = #{id}
+    </select>
 </mapper>
