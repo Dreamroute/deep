@@ -14,7 +14,12 @@ public class MapperTest {
 
     @Test
     public void insertTest() {
-        int result = userMapper.insert(User.builder().name("ww22w").password("322").version(1L).build());
+        User user = User.builder()
+                .name("wwwdd")
+                .password("mm")
+                .version(1L)
+                .build();
+        int result = userMapper.insert(user);
         System.err.println(result);
     }
 
