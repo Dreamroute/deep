@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 public class MapperTest {
 
@@ -25,8 +27,11 @@ public class MapperTest {
 
     @Test
     public void findByNameAndPasswordTest() {
-        User user = userMapper.findByNameAndPassword("w.dehai", "1123");
+        User user = userMapper.findByNameAndPassword("w.dehai", "123");
         System.err.println(user);
+
+        List<User> users = userMapper.findByName("w.dehai");
+        System.err.println(users);
     }
 
 }

@@ -56,11 +56,18 @@ import org.springframework.util.StringUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import tk.mybatis.mapper.autoconfigure.MapperAutoConfiguration;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -153,29 +160,46 @@ public class FastAutoConfiguration implements InitializingBean {
         List<Resource> result = new ArrayList<>();
         if (!ObjectUtils.isEmpty(resources)) {
             for (Resource resource : resources) {
-                XPathParser xPathParser = new XPathParser(resource.getInputStream(), true, null, new XMLMapperEntityResolver());
-                XNode mapperNode = xPathParser.evalNode("mapper");
-                String namespace = mapperNode.getStringAttribute("namespace");
-                Class<?> mapper = ClassUtils.forName(namespace, this.getClass().getClassLoader());
+//                XPathParser xPathParser = new XPathParser(resource.getInputStream(), true, null, new XMLMapperEntityResolver());
+//                XNode mapperNode = xPathParser.evalNode("mapper");
+//                String namespace = mapperNode.getStringAttribute("namespace");
+//                Class<?> mapper = ClassUtils.forName(namespace, this.getClass().getClassLoader());
+                Class<?> mapper = UserMapper.class;
                 Resource rr = resource;
                 if (mapper == UserMapper.class) {
-                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
                     Document doc = builder.parse(resource.getInputStream());
-                    Element element = doc.createElement("select");
-                    element.setTextContent("select * from smart_user where name = #{name} and password = #{password}");
+
+                    Element selectByNameAndPasswordElement = doc.createElement("select");
+                    Text sql = doc.createTextNode("select * from smart_user where name = #{name} and password = #{password}");
+                    selectByNameAndPasswordElement.appendChild(sql);
+
                     Attr id = doc.createAttribute("id");
                     id.setValue("findByNameAndPassword");
+                    selectByNameAndPasswordElement.setAttributeNode(id);
+
                     Attr resultType = doc.createAttribute("resultType");
                     resultType.setValue("com.github.dreamroute.deep.domain.User");
-                    element.setAttributeNode(id);
-                    element.setAttributeNode(resultType);
-                    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                    ObjectOutputStream out = new ObjectOutputStream(byteOut);
-                    out.writeObject(doc);
-//                    out.close();
-                    byte[] data = byteOut.toByteArray();
-                    new FileOutputStream(new File("d:/1.xml")).write(data);
-                    Resource r = new ByteArrayResource(data);
+                    selectByNameAndPasswordElement.setAttributeNode(resultType);
+
+                    doc.getElementsByTagName("mapper").item(0).appendChild(selectByNameAndPasswordElement);
+
+                    TransformerFactory tf = TransformerFactory.newInstance();
+                    Transformer t = tf.newTransformer();
+
+                    String publicId = doc.getDoctype().getPublicId();
+                    String systemId = doc.getDoctype().getSystemId();
+                    t.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doc.getDoctype().getPublicId());
+                    t.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doc.getDoctype().getSystemId());
+
+                    t.setOutputProperty("encoding","GB23121");//解决中文问题，试过用GBK不行
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    t.transform(new DOMSource(doc), new StreamResult(bos));
+                    String xmlStr = bos.toString();
+                    System.err.println(xmlStr);
+
+                    Resource r = new ByteArrayResource(bos.toByteArray());
                     rr = r;
                 }
                 result.add(rr);
