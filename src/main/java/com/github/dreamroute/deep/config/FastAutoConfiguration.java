@@ -1,8 +1,13 @@
 package com.github.dreamroute.deep.config;
 
+import com.github.dreamroute.deep.mapper.UserMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.binding.MapperRegistry;
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
+import org.apache.ibatis.parsing.XNode;
+import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.ExecutorType;
@@ -39,18 +44,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import tk.mybatis.mapper.autoconfigure.MapperAutoConfiguration;
 
 import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -131,8 +148,39 @@ public class FastAutoConfiguration implements InitializingBean {
         if (!ObjectUtils.isEmpty(this.typeHandlers)) {
             factory.setTypeHandlers(this.typeHandlers);
         }
-        if (!ObjectUtils.isEmpty(this.properties.resolveMapperLocations())) {
-            factory.setMapperLocations(this.properties.resolveMapperLocations());
+
+        Resource[] resources = this.properties.resolveMapperLocations();
+        List<Resource> result = new ArrayList<>();
+        if (!ObjectUtils.isEmpty(resources)) {
+            for (Resource resource : resources) {
+                XPathParser xPathParser = new XPathParser(resource.getInputStream(), true, null, new XMLMapperEntityResolver());
+                XNode mapperNode = xPathParser.evalNode("mapper");
+                String namespace = mapperNode.getStringAttribute("namespace");
+                Class<?> mapper = ClassUtils.forName(namespace, this.getClass().getClassLoader());
+                Resource rr = resource;
+                if (mapper == UserMapper.class) {
+                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    Document doc = builder.parse(resource.getInputStream());
+                    Element element = doc.createElement("select");
+                    element.setTextContent("select * from smart_user where name = #{name} and password = #{password}");
+                    Attr id = doc.createAttribute("id");
+                    id.setValue("findByNameAndPassword");
+                    Attr resultType = doc.createAttribute("resultType");
+                    resultType.setValue("com.github.dreamroute.deep.domain.User");
+                    element.setAttributeNode(id);
+                    element.setAttributeNode(resultType);
+                    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+                    ObjectOutputStream out = new ObjectOutputStream(byteOut);
+                    out.writeObject(doc);
+//                    out.close();
+                    byte[] data = byteOut.toByteArray();
+                    new FileOutputStream(new File("d:/1.xml")).write(data);
+                    Resource r = new ByteArrayResource(data);
+                    rr = r;
+                }
+                result.add(rr);
+            }
+            factory.setMapperLocations(result.toArray(new Resource[result.size()]));
         }
         Set<String> factoryPropertyNames = Stream
                 .of(new BeanWrapperImpl(SqlSessionFactoryBean.class).getPropertyDescriptors()).map(PropertyDescriptor::getName)
@@ -151,21 +199,21 @@ public class FastAutoConfiguration implements InitializingBean {
         }
 
         // add Fast
-        org.apache.ibatis.session.Configuration configuration = factory.getObject().getConfiguration();
-        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
-        Collection<Class<?>> mappers = mapperRegistry.getMappers();
-        if (mappers != null && !mappers.isEmpty()) {
-            for (Class<?> mapper : mappers) {
-                Method[] methods = mapper.getMethods();
-                if (methods != null && methods.length > 0) {
-                    for (Method method : methods) {
-                        if (method.getName().startsWith("findBy")) {
-
-                        }
-                    }
-                }
-            }
-        }
+//        org.apache.ibatis.session.Configuration configuration = factory.getObject().getConfiguration();
+//        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
+//        Collection<Class<?>> mappers = mapperRegistry.getMappers();
+//        if (mappers != null && !mappers.isEmpty()) {
+//            for (Class<?> mapper : mappers) {
+//                Method[] methods = mapper.getMethods();
+//                if (methods != null && methods.length > 0) {
+//                    for (Method method : methods) {
+//                        if (method.getName().startsWith("findBy")) {
+//                            System.err.println(method.getName());
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         return factory.getObject();
     }
