@@ -160,11 +160,10 @@ public class FastAutoConfiguration implements InitializingBean {
         List<Resource> result = new ArrayList<>();
         if (!ObjectUtils.isEmpty(resources)) {
             for (Resource resource : resources) {
-//                XPathParser xPathParser = new XPathParser(resource.getInputStream(), true, null, new XMLMapperEntityResolver());
-//                XNode mapperNode = xPathParser.evalNode("mapper");
-//                String namespace = mapperNode.getStringAttribute("namespace");
-//                Class<?> mapper = ClassUtils.forName(namespace, this.getClass().getClassLoader());
-                Class<?> mapper = UserMapper.class;
+                XPathParser xPathParser = new XPathParser(resource.getInputStream(), true, null, new XMLMapperEntityResolver());
+                XNode mapperNode = xPathParser.evalNode("mapper");
+                String namespace = mapperNode.getStringAttribute("namespace");
+                Class<?> mapper = ClassUtils.forName(namespace, this.getClass().getClassLoader());
                 Resource rr = resource;
                 if (mapper == UserMapper.class) {
                     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -193,7 +192,7 @@ public class FastAutoConfiguration implements InitializingBean {
                     t.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doc.getDoctype().getPublicId());
                     t.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doc.getDoctype().getSystemId());
 
-                    t.setOutputProperty("encoding","GB23121");//解决中文问题，试过用GBK不行
+                    t.setOutputProperty("encoding","UTF-8");
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     t.transform(new DOMSource(doc), new StreamResult(bos));
                     String xmlStr = bos.toString();
@@ -221,23 +220,6 @@ public class FastAutoConfiguration implements InitializingBean {
             // Need to mybatis-spring 2.0.2+
             factory.setDefaultScriptingLanguageDriver(defaultLanguageDriver);
         }
-
-        // add Fast
-//        org.apache.ibatis.session.Configuration configuration = factory.getObject().getConfiguration();
-//        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
-//        Collection<Class<?>> mappers = mapperRegistry.getMappers();
-//        if (mappers != null && !mappers.isEmpty()) {
-//            for (Class<?> mapper : mappers) {
-//                Method[] methods = mapper.getMethods();
-//                if (methods != null && methods.length > 0) {
-//                    for (Method method : methods) {
-//                        if (method.getName().startsWith("findBy")) {
-//                            System.err.println(method.getName());
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         return factory.getObject();
     }

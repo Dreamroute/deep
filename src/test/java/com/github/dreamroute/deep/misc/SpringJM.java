@@ -1,6 +1,7 @@
 package com.github.dreamroute.deep.misc;
 
 import com.github.dreamroute.deep.domain.User;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;

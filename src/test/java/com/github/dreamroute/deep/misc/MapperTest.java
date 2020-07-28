@@ -29,9 +29,6 @@ public class MapperTest {
     public void findByNameAndPasswordTest() {
         User user = userMapper.findByNameAndPassword("w.dehai", "123");
         System.err.println(user);
-
-        List<User> users = userMapper.findByName("w.dehai");
-        System.err.println(users);
     }
 
 }
