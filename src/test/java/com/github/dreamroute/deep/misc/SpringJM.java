@@ -7,6 +7,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.StopWatch;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -46,6 +47,15 @@ public class SpringJM {
 
     public List<User> getUserList() {
         return null;
+    }
+
+    @Test
+    void stopWatchTest() throws InterruptedException {
+        StopWatch watch = new StopWatch();
+        watch.start();
+        Thread.sleep(1 * 1000);
+        watch.stop();
+        System.err.println(watch.getTotalTimeSeconds());
     }
 
 }
