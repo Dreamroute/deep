@@ -2,11 +2,11 @@ package com.github.dreamroute.deep.misc;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StopWatch;
-import sun.rmi.transport.StreamRemoteCall;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StopWatchTest {
 
@@ -31,9 +31,17 @@ public class StopWatchTest {
 
     @Test
     public void streamTest() {
-        Stream<Integer> stream = Stream.of(1, 2, 3);
-//        User : id: name
-        stream.map()
+        Object result = Optional.ofNullable(null).orElseThrow(RuntimeException::new);
+        System.err.println(result);
+    }
+
+    @Test
+    public void regexTest() {
+        System.err.println("abc".matches("..."));
+
+        System.err.println(Pattern.compile("[a-z]{3}").matcher("abc").matches());
+
+
     }
 
 
