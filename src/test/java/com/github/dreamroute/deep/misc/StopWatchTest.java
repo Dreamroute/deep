@@ -5,8 +5,6 @@ import org.springframework.util.StopWatch;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class StopWatchTest {
 
@@ -37,10 +35,8 @@ public class StopWatchTest {
 
     @Test
     public void regexTest() {
-        System.err.println("abc".matches("..."));
 
-        System.err.println(Pattern.compile("[a-z]{3}").matcher("abc").matches());
-
+        String str = "PasswordNotLike";
 
     }
 
