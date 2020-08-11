@@ -1,8 +1,10 @@
 package com.github.dreamroute.deep.misc;
 
+import com.github.dreamroute.deep.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.StopWatch;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,6 +27,11 @@ public class StopWatchTest {
         s.ifPresent(System.err::println);
 
         op.map(v -> v + "111").ifPresent(System.err::println);
+
+        String mm = "w.dehai";
+        User user = new User();
+        Long userId = Optional.ofNullable(user).map(User::getId).orElseThrow(NullPointerException::new);
+        System.err.println(userId);
     }
 
     @Test
