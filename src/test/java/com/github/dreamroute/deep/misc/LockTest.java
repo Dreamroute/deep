@@ -3,9 +3,6 @@ package com.github.dreamroute.deep.misc;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -17,8 +14,8 @@ public class LockTest {
     @Test
     void reLockTest() {
         ReentrantLock lock = new ReentrantLock(true);
+        lock.lock();
         try {
-            lock.lock();
             System.err.println("lock.");
         } finally {
             lock.unlock();
@@ -41,6 +38,11 @@ public class LockTest {
         queue.offer("C");
         queue.offer("D");
         System.err.println(queue);
+
+        String firstName = "wang";
+        String lastName = "dehai";
+        String name = firstName.concat(lastName);
+        System.err.println(name);
 
     }
 
