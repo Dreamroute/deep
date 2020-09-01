@@ -7,6 +7,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 
+
 public class SpringJM {
 
     @Test
@@ -15,6 +16,7 @@ public class SpringJM {
         BeanDefinitionRegistry registry;
         new RootBeanDefinition(User.class);
         ApplicationContext container;
+
     }
 
 }
