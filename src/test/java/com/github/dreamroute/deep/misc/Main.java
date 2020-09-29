@@ -4,27 +4,19 @@ package com.github.dreamroute.deep.misc;
  * @author w.dehai
  */
 
-import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
-/**
- * 求和
- *
- * @author w.dehai
- */
+import java.util.Properties;
+
+import static java.lang.String.format;
+
 public class Main {
-    public static void main(String[] args) {
-        System.err.println(new Main().sum(3, new int[][] {{1, 2, 3}, {2, 1, 3}, {3, 2, 1}}));
-    }
+    @Test
+    void mmmm() {
+        Properties properties = System.getProperties();
+        properties.forEach((k, v) -> System.err.println(k + ": " + v));
 
-    public int sum(int n, int[][] data) {
-        int result = 0;
-        if (n > 1000) {
-            throw new IllegalArgumentException("arg 'n' must greater than equal 1000.");
-        }
-        for (int i=0; i<n; i++) {
-            result += Arrays.stream(data[i]).sum();
-        }
-        return result;
+        String result = format("bdfint is a %s and %d time.", "big", 5);
+        System.err.println(result);
     }
-
 }
