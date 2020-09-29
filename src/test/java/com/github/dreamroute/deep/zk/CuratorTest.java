@@ -2,6 +2,7 @@ package com.github.dreamroute.deep.zk;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.barriers.DistributedBarrier;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
@@ -11,9 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -81,6 +81,16 @@ public class CuratorTest {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    @Test
+    void semaphoreTest() throws Exception {
+        DistributedBarrier barrier = new DistributedBarrier(client, "/db");
+        int time = randomInt(3, 5);
+        TimeUnit.SECONDS.sleep(time);
+        System.err.println("睡眠 + " + time + "秒。");
+        barrier.waitOnBarrier();
+        System.err.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.sss")));
     }
 
 }
