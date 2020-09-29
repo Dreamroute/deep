@@ -86,7 +86,7 @@ public class CuratorTest {
     @Test
     void semaphoreTest() throws Exception {
         DistributedBarrier barrier = new DistributedBarrier(client, "/db");
-        int time = randomInt(3, 5);
+        int time = randomInt(10, 20);
         TimeUnit.SECONDS.sleep(time);
         System.err.println("睡眠 + " + time + "秒。");
         barrier.waitOnBarrier();
