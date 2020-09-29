@@ -90,7 +90,7 @@ public class CuratorTest {
         TimeUnit.SECONDS.sleep(time);
         System.err.println("睡眠 + " + time + "秒。");
         barrier.waitOnBarrier();
-        System.err.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.sss")));
+        System.err.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
     }
 
 }
