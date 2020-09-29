@@ -11,6 +11,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
+import static cn.hutool.core.util.RandomUtil.randomInt;
 import static org.apache.zookeeper.CreateMode.EPHEMERAL_SEQUENTIAL;
 
 /**
@@ -60,7 +69,18 @@ public class CuratorTest {
         LeaderSelector selector = new LeaderSelector(client, "/leader", listener);
         selector.autoRequeue();
         selector.start();
-        Thread.sleep(1000 * 1000);
+        TimeUnit.SECONDS.sleep(1000);
+
+        ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+        ReadLock readLock = rwLock.readLock();
+        WriteLock writeLock = rwLock.writeLock();
+
+        writeLock.lock();
+        try {
+
+        } finally {
+            writeLock.unlock();
+        }
     }
 
 }
