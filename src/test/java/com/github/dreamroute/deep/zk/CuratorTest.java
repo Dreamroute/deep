@@ -2,6 +2,9 @@ package com.github.dreamroute.deep.zk;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.leader.LeaderSelector;
+import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
+import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.RetryNTimes;
 import org.junit.jupiter.api.AfterAll;
@@ -45,8 +48,19 @@ public class CuratorTest {
         }
     }
 
-    static class Resoruce {
-        int num = 0;
+    @Test
+    void leaderElectionTest() throws Exception {
+        LeaderSelectorListener listener = new LeaderSelectorListenerAdapter() {
+            @Override
+            public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
+                System.err.println("I'm leader.");
+            }
+        };
+
+        LeaderSelector selector = new LeaderSelector(client, "/leader", listener);
+        selector.autoRequeue();
+        selector.start();
+        Thread.sleep(1000 * 1000);
     }
 
 }
